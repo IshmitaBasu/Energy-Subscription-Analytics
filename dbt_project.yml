@@ -7,10 +7,39 @@ profile: energy_subscription_analytics
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
-seed-paths: ["seeds"]
+seed-paths: ["data/generated"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
 clean-targets:
   - "target"
   - "dbt_packages"
+
+seeds:
+  energy_subscription_analytics:
+    customers:
+      +column_types:
+        customer_id: string
+        signup_date: date
+        customer_segment: string
+        region: string
+    tariffs:
+      +column_types:
+        tariff_id: string
+        tariff_name: string
+        base_fee_eur_monthly: numeric
+        unit_rate_eur_per_kwh: numeric
+        region: string
+    contracts:
+      +column_types:
+        contract_id: string
+        customer_id: string
+        tariff_id: string
+        contract_start_date: date
+        contract_end_date: date
+        contract_status: string
+    monthly_consumption:
+      +column_types:
+        contract_id: string
+        consumption_month: date
+        consumption_kwh: numeric

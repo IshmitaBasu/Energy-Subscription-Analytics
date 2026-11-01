@@ -6,6 +6,8 @@ Build a small, reproducible analytics project using synthetic energy-subscriptio
 
 This is a learning and portfolio project, not a production implementation. Do not use real customer data.
 
+The [architecture document](./docs/architecture.md) is the design contract for the first release. Update it when a model boundary, grain, metric rule, or system responsibility changes.
+
 ## Keep the first version small
 
 - Use a deliberately limited synthetic dataset that can be regenerated.
@@ -75,7 +77,7 @@ This is a learning and portfolio project, not a production implementation. Do no
   - `dim_customer`: one row per customer.
   - `dim_tariff`: one row per tariff or tariff version, depending on how rate changes are represented.
   - `dim_contract`: one row per contract.
-- [ ] Create `fact_consumption` at one row per contract per month, with consumption and the keys needed to analyze it.
+- [ ] Create `fct_contract_monthly` at one row per contract per active calendar month, including months without an observed consumption record.
 - [ ] Decide how tariff-rate changes are represented. For a small first version, either keep one rate per tariff or include effective dates and select the rate that applies to each consumption month.
 - [ ] Add a contract-activity model or metric logic that handles contracts active on a given date consistently.
 - [ ] Add the agreed revenue calculation at a clearly stated grain, avoiding duplicated fees when joining monthly consumption to contract-level data.

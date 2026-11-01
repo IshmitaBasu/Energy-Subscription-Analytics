@@ -1,0 +1,5 @@
+tariff_id,tariff_name,base_fee_eur_monthly,unit_rate_eur_per_kwh,region
+TAR-001,Standard,12.90,0.3200,DE
+TAR-002,Green,14.50,0.3350,DE
+TAR-003,Saver,9.90,0.3490,DE
+TAR-004,Flex,16.00,0.3050,DE

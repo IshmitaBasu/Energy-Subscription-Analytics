@@ -27,7 +27,7 @@ These decisions are the source of truth for synthetic data, model logic, tests, 
 | Partial-month base fee | Prorate by active calendar days divided by the number of days in the month. |
 | Missing monthly consumption | Keep missing distinct from zero. Keep the known base-fee component, but mark total monthly revenue incomplete/null when consumption is missing; do not silently substitute zero. |
 | Tariff rate changes | One fixed unit rate per tariff in the first version; no effective-dated rate changes. |
-| Scope | One region, one currency, monthly consumption, and synthetic data only. |
+| Scope | Germany (`DE`), one currency (EUR), monthly consumption, and synthetic data only. |
 
 End/cancellation dates are treated as inclusive for active-day calculations and contract activity.
 
