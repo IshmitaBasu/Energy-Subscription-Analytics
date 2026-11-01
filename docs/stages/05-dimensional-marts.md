@@ -11,7 +11,7 @@ Create analysis-ready dimensions and facts with explicit grains and joins, imple
 - `dim_customer`: one row per customer.
 - `dim_tariff`: one row per tariff, or per tariff version if effective-dated rates are used.
 - `dim_contract`: one row per contract.
-- `fct_contract_monthly`: one row per contract per calendar month in which the contract was active for at least one day, including months without an observed consumption record.
+- `fact_contract_monthly`: one row per contract per calendar month in which the contract was active for at least one day, including months without an observed consumption record.
 
 These grains are fixed for the first release by the [architecture document](../architecture.md). Update the architecture document if a grain or model boundary must change.
 
@@ -40,8 +40,8 @@ These grains are fixed for the first release by the [architecture document](../a
 
 ## Work log
 
-- Added `int_contract_months` as a view in `esa_dev_staging`. It generates one row per contract per intersecting reporting month and left joins consumption so missing observations remain visible.
-- Added `dim_customer`, `dim_tariff`, `dim_contract`, and `fct_contract_monthly` as certified tables in `esa_dev_marts`.
+- Added `view_contract_months` as a view in `esa_dev_staging`. It generates one row per contract per intersecting reporting month and left joins consumption so missing observations remain visible.
+- Added `dim_customer`, `dim_tariff`, `dim_contract`, and `fact_contract_monthly` as certified tables in `esa_dev_marts`.
 - Implemented inclusive active-day calculations, month-end activity flags, base-fee proration, usage revenue, total revenue, and revenue-completeness flags.
 - Added model and column descriptions plus primary-key, required-field, accepted-value, relationship, active-day-bound, and fact-grain tests.
 - Ran `dbt build --select +path:models/marts`: all 122 selected nodes passed with zero warnings, errors, or skips.

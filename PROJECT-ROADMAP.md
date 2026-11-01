@@ -77,7 +77,7 @@ The [architecture document](./docs/architecture.md) is the design contract for t
   - `dim_customer`: one row per customer.
   - `dim_tariff`: one row per tariff or tariff version, depending on how rate changes are represented.
   - `dim_contract`: one row per contract.
-- [x] Create `fct_contract_monthly` at one row per contract per active calendar month, including months without an observed consumption record.
+- [x] Create `fact_contract_monthly` at one row per contract per active calendar month, including months without an observed consumption record.
 - [x] Decide how tariff-rate changes are represented. For a small first version, either keep one rate per tariff or include effective dates and select the rate that applies to each consumption month.
 - [x] Add a contract-activity model or metric logic that handles contracts active on a given date consistently.
 - [x] Add the agreed revenue calculation at a clearly stated grain, avoiding duplicated fees when joining monthly consumption to contract-level data.

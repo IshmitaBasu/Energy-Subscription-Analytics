@@ -5,5 +5,5 @@ select
     contract_start_date,
     contract_end_date,
     contract_status
-from {{ ref('stg_contracts') }}
+from {{ ref('view_contracts') }}
 

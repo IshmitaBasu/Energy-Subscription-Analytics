@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: stg_customers
+  - name: view_customers
     description: >-
       Clean customer source view at one row per customer. String fields are
       trimmed, segments are lowercased, and region codes are uppercased. No rows
@@ -31,7 +31,7 @@ models:
               arguments:
                 values: ["DE"]
 
-  - name: stg_tariffs
+  - name: view_tariffs
     description: >-
       Clean tariff source view at one row per tariff. Identifiers and names are
       trimmed, region codes are uppercased, and monetary fields are NUMERIC. No
@@ -62,7 +62,7 @@ models:
               arguments:
                 values: ["DE"]
 
-  - name: stg_contracts
+  - name: view_contracts
     description: >-
       Clean contract source view at one row per contract. Identifiers are
       trimmed, statuses are lowercased, and service dates retain inclusive
@@ -79,7 +79,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('stg_customers')
+                to: ref('view_customers')
                 field: customer_id
       - name: tariff_id
         description: Tariff assigned to the contract.
@@ -87,7 +87,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('stg_tariffs')
+                to: ref('view_tariffs')
                 field: tariff_id
       - name: contract_start_date
         description: Inclusive service start date.
@@ -103,7 +103,7 @@ models:
               arguments:
                 values: ["active", "ended", "cancelled"]
 
-  - name: stg_monthly_consumption
+  - name: view_monthly_consumption
     description: >-
       Clean observed consumption source view at one row per contract and calendar
       month. Null consumption remains null and measured zero remains zero. No rows
@@ -115,7 +115,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('stg_contracts')
+                to: ref('view_contracts')
                 field: contract_id
       - name: consumption_month
         description: First calendar day of the observed consumption month.

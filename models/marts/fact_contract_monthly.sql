@@ -1,7 +1,7 @@
 with contract_months as (
 
     select *
-    from {{ ref('int_contract_months') }}
+    from {{ ref('view_contract_months') }}
 
 ),
 

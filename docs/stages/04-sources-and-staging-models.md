@@ -32,7 +32,7 @@ Declare raw BigQuery tables as dbt sources and build one lightly cleaned staging
 
 - Declared the four seed-backed BigQuery tables under the `energy_subscription_raw` dbt source.
 - Added source and staging tests for required values, primary keys, accepted categories, and relationships.
-- Created `stg_customers`, `stg_tariffs`, `stg_contracts`, and `stg_monthly_consumption` as views in `esa_dev_staging`.
+- Created `view_customers`, `view_tariffs`, `view_contracts`, and `view_monthly_consumption` as views in `esa_dev_staging`.
 - Added singular tests for valid contract date order and the unique contract-month consumption grain.
 - Staging trims identifiers and names, lowercases segments/statuses, uppercases region codes, and explicitly casts dates and numeric measures.
 - Staging does not filter rows, impute consumption, or calculate activity or revenue. Null consumption and measured zero remain distinct.

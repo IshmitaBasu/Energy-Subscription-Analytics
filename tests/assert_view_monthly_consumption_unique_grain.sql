@@ -1,8 +1,8 @@
 select
     contract_id,
-    reporting_month,
+    consumption_month,
     count(*) as row_count
-from {{ ref('fct_contract_monthly') }}
+from {{ ref('view_monthly_consumption') }}
 group by 1, 2
 having count(*) > 1
 

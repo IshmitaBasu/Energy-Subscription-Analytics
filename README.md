@@ -56,7 +56,7 @@ flowchart LR
     M --> B[Metabase dashboard]
 ```
 
-The central fact is `fct_contract_monthly`, with one row per contract per calendar month in which the contract was active for at least one day. It includes months without an observed consumption record so that activity, base fees, and data completeness remain visible.
+The central fact is `fact_contract_monthly`, with one row per contract per calendar month in which the contract was active for at least one day. It includes months without an observed consumption record so that activity, base fees, and data completeness remain visible.
 
 See [Architecture](./docs/architecture.md) for the full system context, dbt lineage, model grains, metric ownership, security boundaries, and non-goals.
 
@@ -103,9 +103,11 @@ Total revenue is null when consumption is unknown. Revenue reporting will theref
 | `dim_customer` | One row per customer |
 | `dim_tariff` | One row per tariff |
 | `dim_contract` | One row per contract |
-| `fct_contract_monthly` | One row per contract per active calendar month |
+| `fact_contract_monthly` | One row per contract per active calendar month |
 
 The marts are documented, tested, tagged `certified`, and will be exposed to Metabase instead of the raw or staging models.
+
+Model names follow the project convention: `view_` for BigQuery views, `dim_` for dimension tables, and `fact_` for fact tables.
 
 ## Technology
 

@@ -16,7 +16,7 @@ Implemented today:
 - A working local dbt Core connection using OAuth.
 - Four documented dbt sources and four tested staging views in `esa_dev_staging`.
 - A complete contract-month scaffold in `esa_dev_staging`.
-- Three certified dimensions and `fct_contract_monthly` in `esa_dev_marts`.
+- Three certified dimensions and `fact_contract_monthly` in `esa_dev_marts`.
 
 Planned next:
 
@@ -52,19 +52,19 @@ MetricFlow and Metabase are separate consumers of the same certified mart. Metab
 
 ```mermaid
 flowchart TD
-    RC[(customers)] --> SC[stg_customers]
-    RT[(tariffs)] --> ST[stg_tariffs]
-    RK[(contracts)] --> SK[stg_contracts]
-    RU[(monthly_consumption)] --> SU[stg_monthly_consumption]
+    RC[(customers)] --> SC[view_customers]
+    RT[(tariffs)] --> ST[view_tariffs]
+    RK[(contracts)] --> SK[view_contracts]
+    RU[(monthly_consumption)] --> SU[view_monthly_consumption]
 
     SC --> DC[dim_customer]
     ST --> DT[dim_tariff]
     SK --> DK[dim_contract]
 
-    SK --> CM[int_contract_months]
+    SK --> CM[view_contract_months]
     SU --> CM
     ST --> CM
-    CM --> FM[fct_contract_monthly]
+    CM --> FM[fact_contract_monthly]
 
     FM --> MF[MetricFlow metrics]
     FM --> MB[Metabase]
@@ -88,6 +88,14 @@ All downstream references will use dbt `source()` or `ref()` relationships. No m
 
 The physical dataset names assume dbt's standard target-schema prefix behavior with the development target `esa_dev`.
 
+## Model naming convention
+
+- `view_` prefixes BigQuery views in the staging and intermediate layers.
+- `dim_` prefixes dimension tables in the mart layer.
+- `fact_` prefixes fact tables in the mart layer.
+
+Raw source tables retain their source-system names.
+
 ## Source entities and grains
 
 | Source | Grain | Key |
@@ -106,7 +114,7 @@ An absent monthly-consumption row and a present row with a null consumption valu
 | `dim_customer` | One row per customer | Customer segment, signup date, and region |
 | `dim_tariff` | One row per tariff | Tariff name, monthly base fee, unit rate, and region |
 | `dim_contract` | One row per contract | Customer/tariff relationships, service dates, and status |
-| `fct_contract_monthly` | One row per contract per calendar month in which it was active for at least one day | Activity, consumption, revenue components, and completeness |
+| `fact_contract_monthly` | One row per contract per calendar month in which it was active for at least one day | Activity, consumption, revenue components, and completeness |
 
 The monthly fact is deliberately not limited to observed consumption records. The current fixture should produce 2,867 contract-month rows: 2,796 with a consumption record and 71 without one. This scaffold preserves base-fee and activity information when consumption is missing.
 
@@ -131,7 +139,7 @@ Contract start and end dates are inclusive. The first version uses one fixed rat
 ### Active contracts
 
 - Metric name: `active_contracts`
-- Source model: `fct_contract_monthly`
+- Source model: `fact_contract_monthly`
 - Calculation: sum the integer form of `is_active_at_month_end`
 - Required time dimension: `reporting_month`
 - Default reporting grain: calendar month
@@ -139,7 +147,7 @@ Contract start and end dates are inclusive. The first version uses one fixed rat
 ### Revenue
 
 - Metric name: `recognized_revenue_eur`
-- Source model: `fct_contract_monthly`
+- Source model: `fact_contract_monthly`
 - Calculation: sum `total_revenue_eur` for complete contract-month records
 - Required time dimension: `reporting_month`
 - Default reporting grain: calendar month
@@ -161,7 +169,7 @@ A valid build must fail on duplicate contract-month rows, orphaned keys, or reve
 
 ## Certified reporting interface
 
-The three dimensions and `fct_contract_monthly` are the public reporting interface. They are:
+The three dimensions and `fact_contract_monthly` are the public reporting interface. They are:
 
 - Described in dbt YAML.
 - Tagged `certified`.

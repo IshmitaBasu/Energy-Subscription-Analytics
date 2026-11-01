@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: int_contract_months
+  - name: view_contract_months
     description: >-
       Complete monthly scaffold at one row per contract per calendar month in
       which the contract was active for at least one day. It joins observed
@@ -19,7 +19,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('stg_contracts')
+                to: ref('view_contracts')
                 field: contract_id
       - name: customer_id
         description: Customer that owns the contract.
@@ -31,7 +31,7 @@ models:
           - not_null
           - relationships:
               arguments:
-                to: ref('stg_tariffs')
+                to: ref('view_tariffs')
                 field: tariff_id
       - name: reporting_month
         description: First calendar day of the reporting month.

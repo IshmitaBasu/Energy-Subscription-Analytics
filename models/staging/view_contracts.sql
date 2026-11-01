@@ -6,7 +6,6 @@ with source as (
 ),
 
 renamed as (
-
     select
         nullif(trim(cast(contract_id as string)), '') as contract_id,
         nullif(trim(cast(customer_id as string)), '') as customer_id,
@@ -15,7 +14,6 @@ renamed as (
         cast(contract_end_date as date) as contract_end_date,
         lower(nullif(trim(cast(contract_status as string)), '')) as contract_status
     from source
-
 )
 
 select *

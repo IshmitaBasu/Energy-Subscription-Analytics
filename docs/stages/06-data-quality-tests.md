@@ -12,7 +12,7 @@ Make key assumptions executable so invalid keys, broken relationships, or incorr
 - [ ] Test required identifiers and measures for non-null values where appropriate.
 - [ ] Test fact-to-dimension relationships.
 - [ ] Add accepted-value or range tests for statuses, dates, and measures where useful.
-- [ ] Verify `fct_contract_monthly` has no duplicate contract-month key.
+- [ ] Verify `fact_contract_monthly` has no duplicate contract-month key.
 - [ ] Add focused checks for revenue logic and monthly aggregation.
 - [ ] Run tests against valid data and, where practical, a controlled invalid example.
 - [ ] Review failures and ensure they explain the issue rather than masking it.

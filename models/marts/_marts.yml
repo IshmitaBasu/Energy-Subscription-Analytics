@@ -82,7 +82,7 @@ models:
         data_tests:
           - not_null
 
-  - name: fct_contract_monthly
+  - name: fact_contract_monthly
     description: >-
       Certified monthly fact at one row per contract per calendar month in which
       the contract was active for at least one day. Revenue is complete only when
