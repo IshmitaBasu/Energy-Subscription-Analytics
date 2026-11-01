@@ -1,0 +1,126 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Clean customer source view at one row per customer. String fields are
+      trimmed, segments are lowercased, and region codes are uppercased. No rows
+      are filtered.
+    columns:
+      - name: customer_id
+        description: Stable synthetic customer identifier and model primary key.
+        data_tests:
+          - not_null
+          - unique
+      - name: signup_date
+        description: Date on which the customer signed up.
+        data_tests:
+          - not_null
+      - name: customer_segment
+        description: Normalized customer segment.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["residential", "small_business"]
+      - name: region
+        description: Uppercase country code.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["DE"]
+
+  - name: stg_tariffs
+    description: >-
+      Clean tariff source view at one row per tariff. Identifiers and names are
+      trimmed, region codes are uppercased, and monetary fields are NUMERIC. No
+      rows are filtered.
+    columns:
+      - name: tariff_id
+        description: Stable synthetic tariff identifier and model primary key.
+        data_tests:
+          - not_null
+          - unique
+      - name: tariff_name
+        description: Display name of the tariff.
+        data_tests:
+          - not_null
+      - name: base_fee_eur_monthly
+        description: Full-month tariff base fee in EUR before proration.
+        data_tests:
+          - not_null
+      - name: unit_rate_eur_per_kwh
+        description: Fixed tariff rate in EUR per kWh.
+        data_tests:
+          - not_null
+      - name: region
+        description: Uppercase country code.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["DE"]
+
+  - name: stg_contracts
+    description: >-
+      Clean contract source view at one row per contract. Identifiers are
+      trimmed, statuses are lowercased, and service dates retain inclusive
+      source semantics. No rows are filtered.
+    columns:
+      - name: contract_id
+        description: Stable synthetic contract identifier and model primary key.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Customer that owns the contract.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: tariff_id
+        description: Tariff assigned to the contract.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tariffs')
+                field: tariff_id
+      - name: contract_start_date
+        description: Inclusive service start date.
+        data_tests:
+          - not_null
+      - name: contract_end_date
+        description: Inclusive service end or cancellation date; null for active contracts.
+      - name: contract_status
+        description: Normalized contract lifecycle status.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["active", "ended", "cancelled"]
+
+  - name: stg_monthly_consumption
+    description: >-
+      Clean observed consumption source view at one row per contract and calendar
+      month. Null consumption remains null and measured zero remains zero. No rows
+      are filtered or imputed.
+    columns:
+      - name: contract_id
+        description: Contract associated with the observation.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_contracts')
+                field: contract_id
+      - name: consumption_month
+        description: First calendar day of the observed consumption month.
+        data_tests:
+          - not_null
+      - name: consumption_kwh
+        description: Monthly kWh; null means unknown and zero means measured zero.
+

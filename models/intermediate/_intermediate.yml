@@ -1,0 +1,80 @@
+version: 2
+
+models:
+  - name: int_contract_months
+    description: >-
+      Complete monthly scaffold at one row per contract per calendar month in
+      which the contract was active for at least one day. It joins observed
+      consumption and the fixed tariff rate without filtering or imputing
+      missing consumption.
+    columns:
+      - name: contract_month_key
+        description: Deterministic key formed from contract ID and reporting month.
+        data_tests:
+          - not_null
+          - unique
+      - name: contract_id
+        description: Contract active during at least one day of the reporting month.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_contracts')
+                field: contract_id
+      - name: customer_id
+        description: Customer that owns the contract.
+        data_tests:
+          - not_null
+      - name: tariff_id
+        description: Fixed tariff assigned to the contract.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_tariffs')
+                field: tariff_id
+      - name: reporting_month
+        description: First calendar day of the reporting month.
+        data_tests:
+          - not_null
+      - name: month_end_date
+        description: Final calendar day of the reporting month.
+        data_tests:
+          - not_null
+      - name: days_in_month
+        description: Number of calendar days in the reporting month.
+        data_tests:
+          - not_null
+      - name: contract_start_date
+        description: Inclusive contract service start date.
+        data_tests:
+          - not_null
+      - name: contract_end_date
+        description: Inclusive service end or cancellation date; null for active contracts.
+      - name: active_days
+        description: Inclusive count of contract service days within the month.
+        data_tests:
+          - not_null
+      - name: is_active_at_month_end
+        description: True when the contract is active on the final calendar day of the month.
+        data_tests:
+          - not_null
+      - name: has_consumption_record
+        description: True when a source consumption row exists, even if its kWh is null.
+        data_tests:
+          - not_null
+      - name: is_consumption_known
+        description: True when consumption kWh is present, including measured zero.
+        data_tests:
+          - not_null
+      - name: consumption_kwh
+        description: Observed consumption; null means consumption is unknown.
+      - name: base_fee_eur_monthly
+        description: Full-month tariff base fee before active-day proration.
+        data_tests:
+          - not_null
+      - name: unit_rate_eur_per_kwh
+        description: Fixed usage rate for the assigned tariff.
+        data_tests:
+          - not_null
+

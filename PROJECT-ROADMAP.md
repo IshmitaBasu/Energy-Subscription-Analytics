@@ -61,28 +61,28 @@ The [architecture document](./docs/architecture.md) is the design contract for t
 
 ### Stage 4 — Declare sources and build staging models
 
-- [ ] Declare the raw BigQuery tables as dbt sources, including descriptions and freshness settings only where they make sense.
-- [ ] Add source tests for required identifiers and key fields.
-- [ ] Create one staging model per source table.
-- [ ] In staging models, standardize names and types, normalize dates, and perform only light cleanup.
-- [ ] Keep business calculations out of staging models.
-- [ ] Build and inspect the staging models with `dbt build` or the appropriate targeted dbt commands.
+- [x] Declare the raw BigQuery tables as dbt sources, including descriptions and freshness settings only where they make sense.
+- [x] Add source tests for required identifiers and key fields.
+- [x] Create one staging model per source table.
+- [x] In staging models, standardize names and types, normalize dates, and perform only light cleanup.
+- [x] Keep business calculations out of staging models.
+- [x] Build and inspect the staging models with `dbt build` or the appropriate targeted dbt commands.
 
 **Stage complete when:** every raw source used downstream is declared, staging models build successfully, and their fields have consistent names and types.
 
 ### Stage 5 — Build the dimensional marts
 
-- [ ] Confirm and document each model's grain before implementing it.
-- [ ] Create dimensions such as:
+- [x] Confirm and document each model's grain before implementing it.
+- [x] Create dimensions such as:
   - `dim_customer`: one row per customer.
   - `dim_tariff`: one row per tariff or tariff version, depending on how rate changes are represented.
   - `dim_contract`: one row per contract.
-- [ ] Create `fct_contract_monthly` at one row per contract per active calendar month, including months without an observed consumption record.
-- [ ] Decide how tariff-rate changes are represented. For a small first version, either keep one rate per tariff or include effective dates and select the rate that applies to each consumption month.
-- [ ] Add a contract-activity model or metric logic that handles contracts active on a given date consistently.
-- [ ] Add the agreed revenue calculation at a clearly stated grain, avoiding duplicated fees when joining monthly consumption to contract-level data.
-- [ ] Use dbt references between models and keep the dependency flow clear: sources → staging → intermediate calculations (if needed) → marts.
-- [ ] Add model and column descriptions in YAML files.
+- [x] Create `fct_contract_monthly` at one row per contract per active calendar month, including months without an observed consumption record.
+- [x] Decide how tariff-rate changes are represented. For a small first version, either keep one rate per tariff or include effective dates and select the rate that applies to each consumption month.
+- [x] Add a contract-activity model or metric logic that handles contracts active on a given date consistently.
+- [x] Add the agreed revenue calculation at a clearly stated grain, avoiding duplicated fees when joining monthly consumption to contract-level data.
+- [x] Use dbt references between models and keep the dependency flow clear: sources → staging → intermediate calculations (if needed) → marts.
+- [x] Add model and column descriptions in YAML files.
 
 **Stage complete when:** the dimensions and fact build, their grains and joins are documented, and representative query results make business sense.
 

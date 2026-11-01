@@ -1,6 +1,6 @@
 # Energy Subscription Analytics
 
-> **Status:** In progress — synthetic source data and architecture complete; dbt staging is next.
+> **Status:** In progress — source data, staging, and dimensional marts complete; focused data-quality tests are next.
 
 A small analytics-engineering portfolio project built with synthetic electricity-subscription data. The project demonstrates how customer, tariff, contract, and monthly consumption data can be transformed into tested and documented dimensional models in BigQuery with dbt, governed through MetricFlow metrics, and reported in Metabase.
 
@@ -24,9 +24,9 @@ The first release deliberately uses a narrow scope: Germany, EUR, calendar-month
 | 2 | Local dbt and BigQuery setup | Complete |
 | 3 | Deterministic synthetic source data | Complete |
 | Architecture | Model boundaries, grains, lineage, and quality strategy | Complete |
-| 4 | dbt sources and staging models | Next |
-| 5 | Dimensional marts | Planned |
-| 6 | Data-quality tests | Planned |
+| 4 | dbt sources and staging models | Complete |
+| 5 | Dimensional marts | Complete |
+| 6 | Data-quality tests | Next |
 | 7 | Documentation and MetricFlow metrics | Planned |
 | 8 | Metabase dashboard | Planned |
 | 9 | Final validation and portfolio polish | Planned |
@@ -38,8 +38,10 @@ Completed work includes:
 - Validated keys, relationships, date ranges, missing values, and measured-zero examples.
 - A working dbt Core connection to BigQuery using local OAuth.
 - An architecture baseline with explicit source and mart grains.
+- Four documented dbt sources and four tested staging views in `esa_dev_staging`.
+- A complete contract-month scaffold and four certified dimensional marts in `esa_dev_marts`.
 
-No staging models, dimensional marts, MetricFlow definitions, or Metabase dashboard are claimed as complete yet.
+No focused metric-formula test suite, MetricFlow definitions, or Metabase dashboard are claimed as complete yet.
 
 ## Architecture
 
@@ -54,7 +56,7 @@ flowchart LR
     M --> B[Metabase dashboard]
 ```
 
-The central planned fact is `fct_contract_monthly`, with one row per contract per calendar month in which the contract was active for at least one day. It includes months without an observed consumption record so that activity, base fees, and data completeness remain visible.
+The central fact is `fct_contract_monthly`, with one row per contract per calendar month in which the contract was active for at least one day. It includes months without an observed consumption record so that activity, base fees, and data completeness remain visible.
 
 See [Architecture](./docs/architecture.md) for the full system context, dbt lineage, model grains, metric ownership, security boundaries, and non-goals.
 
@@ -69,7 +71,7 @@ See [Architecture](./docs/architecture.md) for the full system context, dbt line
 
 The reporting period is January 2024 through December 2025. The generated fixture contains active, ended, and cancelled contracts; four tariffs; residential and small-business customers; partial service months; missing consumption; and measured zero consumption.
 
-The complete monthly scaffold is expected to contain 2,867 contract-month rows. Of these, 71 have no source consumption record. A missing record or null consumption value means consumption is unknown; numeric zero means consumption was measured as zero.
+The complete monthly scaffold contains 2,867 contract-month rows. Of these, 71 have no source consumption record. A missing record or null consumption value means consumption is unknown; numeric zero means consumption was measured as zero.
 
 ## Business definitions
 
@@ -94,7 +96,7 @@ total revenue    = base fee revenue + usage revenue
 
 Total revenue is null when consumption is unknown. Revenue reporting will therefore include a completeness indicator and will not silently convert missing consumption to zero.
 
-## Planned dimensional model
+## Dimensional model
 
 | Model | Grain |
 |---|---|
@@ -103,7 +105,7 @@ Total revenue is null when consumption is unknown. Revenue reporting will theref
 | `dim_contract` | One row per contract |
 | `fct_contract_monthly` | One row per contract per active calendar month |
 
-The final marts will be documented, tested, tagged `certified`, and exposed to Metabase instead of the raw or staging models.
+The marts are documented, tested, tagged `certified`, and will be exposed to Metabase instead of the raw or staging models.
 
 ## Technology
 
@@ -125,8 +127,9 @@ Dependency versions are pinned in [requirements.txt](./requirements.txt).
 │   ├── architecture.md      # Architecture and model-design contract
 │   └── stages/              # Stage-level decisions, tasks, and work logs
 ├── models/
-│   ├── staging/             # Planned source-aligned dbt models
-│   └── marts/               # Planned dimensional models and metrics
+│   ├── intermediate/        # Complete contract-month scaffold
+│   ├── staging/             # Implemented sources and source-aligned views
+│   └── marts/               # Certified dimensions and monthly fact
 ├── scripts/
 │   └── generate_synthetic_data.py
 ├── tests/                   # Planned singular dbt tests
@@ -183,14 +186,14 @@ The generator validates primary keys, foreign keys, date consistency, and the un
 
 ## Next implementation milestone
 
-Stage 4 will add:
+Stage 6 will add:
 
-- dbt source declarations for the four BigQuery seed tables.
-- Source-level key, relationship, status, and required-field tests.
-- `stg_customers`, `stg_tariffs`, `stg_contracts`, and `stg_monthly_consumption` views.
-- Separate staging and mart BigQuery datasets as defined by the architecture.
+- Focused range and accepted-value tests for numeric and flag fields.
+- Revenue-formula, proration, and completeness tests.
+- Reconciliation tests for the monthly fact and its aggregations.
+- Controlled failure checks showing that invalid records are detected.
 
-Implementation details and completion criteria are recorded in [Stage 4](./docs/stages/04-sources-and-staging-models.md).
+Implementation details and completion criteria are recorded in [Stage 6](./docs/stages/06-data-quality-tests.md).
 
 ## Documentation
 

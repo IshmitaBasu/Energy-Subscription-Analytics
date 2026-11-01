@@ -1,0 +1,178 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: Certified customer dimension at one row per synthetic customer.
+    columns:
+      - name: customer_id
+        description: Stable synthetic customer identifier and dimension primary key.
+        data_tests:
+          - not_null
+          - unique
+      - name: signup_date
+        description: Date on which the customer signed up.
+        data_tests:
+          - not_null
+      - name: customer_segment
+        description: Customer segment used for reporting breakdowns.
+        data_tests:
+          - not_null
+      - name: region
+        description: Country code; fixed to DE in the first release.
+        data_tests:
+          - not_null
+
+  - name: dim_tariff
+    description: Certified tariff dimension at one row per fixed tariff.
+    columns:
+      - name: tariff_id
+        description: Stable tariff identifier and dimension primary key.
+        data_tests:
+          - not_null
+          - unique
+      - name: tariff_name
+        description: Display name of the tariff.
+        data_tests:
+          - not_null
+      - name: base_fee_eur_monthly
+        description: Full-month base fee before active-day proration.
+        data_tests:
+          - not_null
+      - name: unit_rate_eur_per_kwh
+        description: Fixed usage rate in EUR per kWh.
+        data_tests:
+          - not_null
+      - name: region
+        description: Country code; fixed to DE in the first release.
+        data_tests:
+          - not_null
+
+  - name: dim_contract
+    description: Certified contract dimension at one row per electricity contract.
+    columns:
+      - name: contract_id
+        description: Stable contract identifier and dimension primary key.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Customer that owns the contract.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_id
+      - name: tariff_id
+        description: Fixed tariff assigned to the contract.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_tariff')
+                field: tariff_id
+      - name: contract_start_date
+        description: Inclusive service start date.
+        data_tests:
+          - not_null
+      - name: contract_end_date
+        description: Inclusive end or cancellation date; null for active contracts.
+      - name: contract_status
+        description: Contract lifecycle status at the end of the reporting fixture.
+        data_tests:
+          - not_null
+
+  - name: fct_contract_monthly
+    description: >-
+      Certified monthly fact at one row per contract per calendar month in which
+      the contract was active for at least one day. Revenue is complete only when
+      consumption is known; missing consumption is never treated as zero.
+    columns:
+      - name: contract_month_key
+        description: Deterministic fact primary key formed from contract ID and month.
+        data_tests:
+          - not_null
+          - unique
+      - name: contract_id
+        description: Contract represented by the fact row.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_contract')
+                field: contract_id
+      - name: customer_id
+        description: Customer that owns the contract.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_id
+      - name: tariff_id
+        description: Tariff assigned to the contract.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_tariff')
+                field: tariff_id
+      - name: reporting_month
+        description: First calendar day of the reporting month.
+        data_tests:
+          - not_null
+      - name: month_end_date
+        description: Final calendar day of the reporting month.
+        data_tests:
+          - not_null
+      - name: days_in_month
+        description: Number of calendar days in the reporting month.
+        data_tests:
+          - not_null
+      - name: active_days
+        description: Inclusive number of service days during the reporting month.
+        data_tests:
+          - not_null
+      - name: is_active_at_month_end
+        description: True when the contract is active on the month-end date.
+        data_tests:
+          - not_null
+      - name: active_contract_count
+        description: Integer month-end active flag for additive metric aggregation.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+                quote: false
+      - name: has_consumption_record
+        description: True when a source consumption row exists for the contract-month.
+        data_tests:
+          - not_null
+      - name: is_consumption_known
+        description: True when consumption has a value, including measured zero.
+        data_tests:
+          - not_null
+      - name: consumption_kwh
+        description: Monthly consumption; null means unknown and zero means measured zero.
+      - name: base_fee_eur_monthly
+        description: Full-month tariff base fee used by the calculation.
+        data_tests:
+          - not_null
+      - name: unit_rate_eur_per_kwh
+        description: Fixed usage rate used by the calculation.
+        data_tests:
+          - not_null
+      - name: base_fee_revenue_eur
+        description: Base fee prorated by active calendar days.
+        data_tests:
+          - not_null
+      - name: usage_revenue_eur
+        description: Consumption multiplied by unit rate; null when consumption is unknown.
+      - name: total_revenue_eur
+        description: Base fee plus usage revenue; null when consumption is unknown.
+      - name: is_revenue_complete
+        description: True when total revenue is calculable from known consumption.
+        data_tests:
+          - not_null
+

@@ -15,6 +15,21 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+models:
+  energy_subscription_analytics:
+    staging:
+      +materialized: view
+      +schema: staging
+      +tags: ["staging"]
+    intermediate:
+      +materialized: view
+      +schema: staging
+      +tags: ["intermediate"]
+    marts:
+      +materialized: table
+      +schema: marts
+      +tags: ["marts", "certified"]
+
 seeds:
   energy_subscription_analytics:
     customers:

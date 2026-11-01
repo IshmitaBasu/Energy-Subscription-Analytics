@@ -14,12 +14,13 @@ Implemented today:
 - Four generated CSV files for customers, tariffs, contracts, and monthly consumption.
 - Four corresponding dbt seeds loaded into `tenji-446218.esa_dev` in the BigQuery `EU` location.
 - A working local dbt Core connection using OAuth.
+- Four documented dbt sources and four tested staging views in `esa_dev_staging`.
+- A complete contract-month scaffold in `esa_dev_staging`.
+- Three certified dimensions and `fct_contract_monthly` in `esa_dev_marts`.
 
 Planned next:
 
-- dbt source declarations and staging views.
-- A complete contract-month scaffold and dimensional marts.
-- Data tests, model documentation, and two MetricFlow metrics.
+- Focused business-rule data tests and two MetricFlow metrics.
 - A Metabase dashboard that queries only final mart models.
 
 ## System context
@@ -76,7 +77,7 @@ All downstream references will use dbt `source()` or `ref()` relationships. No m
 
 ## Layer responsibilities
 
-| Layer | Responsibility | Materialization | Planned BigQuery dataset |
+| Layer | Responsibility | Materialization | BigQuery dataset |
 |---|---|---|---|
 | Raw | Preserve reproducible synthetic inputs with explicit types | Seed tables | `esa_dev` |
 | Staging | Rename, cast, normalize, and expose source fields without business calculations | Views | `esa_dev_staging` |
@@ -160,12 +161,14 @@ A valid build must fail on duplicate contract-month rows, orphaned keys, or reve
 
 ## Certified reporting interface
 
-The three dimensions and `fct_contract_monthly` are the public reporting interface. They will be:
+The three dimensions and `fct_contract_monthly` are the public reporting interface. They are:
 
-- Fully described in dbt YAML.
+- Described in dbt YAML.
 - Tagged `certified`.
-- Protected with dbt model contracts where practical.
+- Tested for primary-key uniqueness, required fields, and relationships.
 - Built in `esa_dev_marts` so Metabase can be restricted to final models.
+
+Enforced dbt model contracts remain optional portfolio hardening for the documentation stage.
 
 Staging and intermediate models are implementation details and are not intended as reporting sources.
 
