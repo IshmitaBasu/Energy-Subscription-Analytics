@@ -16,6 +16,11 @@ profiles.yml
 *.service-account.json
 credentials.json
 
+# Local Metabase state and credentials
+metabase/.env
+metabase/credentials/
+metabase/data/
+
 # Editor and operating-system files
 .vscode/
 .idea/

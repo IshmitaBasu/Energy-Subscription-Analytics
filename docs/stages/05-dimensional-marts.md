@@ -42,10 +42,10 @@ These grains are fixed for the first release by the [architecture document](../a
 
 - Added `view_contract_months` as a view in `esa_dev_staging`. It generates one row per contract per intersecting reporting month and left joins consumption so missing observations remain visible.
 - Added `dim_customer`, `dim_tariff`, `dim_contract`, and `fact_contract_monthly` as certified tables in `esa_dev_marts`.
-- Implemented inclusive active-day calculations, month-end activity flags, base-fee proration, usage revenue, total revenue, and revenue-completeness flags.
+- Implemented inclusive active-day calculations, month-end activity flags, base-fee proration, usage revenue, total revenue, two-decimal component rounding, and revenue-completeness flags.
 - Added model and column descriptions plus primary-key, required-field, accepted-value, relationship, active-day-bound, and fact-grain tests.
 - Ran `dbt build --select +path:models/marts`: all 122 selected nodes passed with zero warnings, errors, or skips.
 - Reconciled mart row counts: 180 customers, 4 tariffs, 180 contracts, and 2,867 contract-month fact rows with 2,867 distinct keys.
 - Confirmed 2,796 fact rows have source consumption records, 71 lack a record, 56 contain a present-but-null value, and 52 contain measured zero consumption. The 127 incomplete rows have null total revenue.
 - Reconciled all 24 monthly active-contract totals directly to staged contract dates with zero mismatched months. The monthly counts range from 72 to 144 and sum to 2,809 active contract-month flags.
-- Reconciled all fact revenue formulas with zero mismatches. For `CON-0001-2024-05`, the independent calculation is `12.90 × 3 / 31 = 1.248387103` base revenue, `36.74 × 0.32 = 11.7568` usage revenue, and `13.005187103` total revenue, matching BigQuery.
+- Reconciled all fact revenue formulas with zero mismatches before Stage 6. Stage 6 subsequently made EUR rounding explicit: base-fee and usage components are rounded to two decimals before total revenue is summed.

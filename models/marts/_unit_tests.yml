@@ -1,0 +1,118 @@
+version: 2
+
+unit_tests:
+  - name: fact_contract_monthly_full_month_revenue
+    description: A complete full month produces the full base fee plus usage revenue.
+    model: fact_contract_monthly
+    given:
+      - input: ref('view_contract_months')
+        rows:
+          - contract_month_key: TEST-FULL-2024-01
+            contract_id: TEST-FULL
+            customer_id: TEST-CUSTOMER
+            tariff_id: TEST-TARIFF
+            reporting_month: '2024-01-01'
+            month_end_date: '2024-01-31'
+            days_in_month: 31
+            active_days: 31
+            is_active_at_month_end: true
+            has_consumption_record: true
+            is_consumption_known: true
+            consumption_kwh: 100
+            base_fee_eur_monthly: 10
+            unit_rate_eur_per_kwh: 0.30
+    expect:
+      rows:
+        - contract_month_key: TEST-FULL-2024-01
+          active_contract_count: 1
+          base_fee_revenue_eur: 10
+          usage_revenue_eur: 30
+          total_revenue_eur: 40
+          is_revenue_complete: true
+
+  - name: fact_contract_monthly_partial_month_revenue
+    description: A partial month prorates the base fee by active calendar days.
+    model: fact_contract_monthly
+    given:
+      - input: ref('view_contract_months')
+        rows:
+          - contract_month_key: TEST-PARTIAL-2024-04
+            contract_id: TEST-PARTIAL
+            customer_id: TEST-CUSTOMER
+            tariff_id: TEST-TARIFF
+            reporting_month: '2024-04-01'
+            month_end_date: '2024-04-30'
+            days_in_month: 30
+            active_days: 10
+            is_active_at_month_end: false
+            has_consumption_record: true
+            is_consumption_known: true
+            consumption_kwh: 60
+            base_fee_eur_monthly: 15
+            unit_rate_eur_per_kwh: 0.25
+    expect:
+      rows:
+        - contract_month_key: TEST-PARTIAL-2024-04
+          active_contract_count: 0
+          base_fee_revenue_eur: 5
+          usage_revenue_eur: 15
+          total_revenue_eur: 20
+          is_revenue_complete: true
+
+  - name: fact_contract_monthly_missing_consumption
+    description: Unknown consumption keeps usage and total revenue null and incomplete.
+    model: fact_contract_monthly
+    given:
+      - input: ref('view_contract_months')
+        rows:
+          - contract_month_key: TEST-MISSING-2024-02
+            contract_id: TEST-MISSING
+            customer_id: TEST-CUSTOMER
+            tariff_id: TEST-TARIFF
+            reporting_month: '2024-02-01'
+            month_end_date: '2024-02-29'
+            days_in_month: 29
+            active_days: 29
+            is_active_at_month_end: true
+            has_consumption_record: false
+            is_consumption_known: false
+            consumption_kwh: null
+            base_fee_eur_monthly: 12
+            unit_rate_eur_per_kwh: 0.30
+    expect:
+      rows:
+        - contract_month_key: TEST-MISSING-2024-02
+          active_contract_count: 1
+          base_fee_revenue_eur: 12
+          usage_revenue_eur: null
+          total_revenue_eur: null
+          is_revenue_complete: false
+
+  - name: fact_contract_monthly_measured_zero
+    description: Measured zero is complete revenue with zero usage charge and a retained base fee.
+    model: fact_contract_monthly
+    given:
+      - input: ref('view_contract_months')
+        rows:
+          - contract_month_key: TEST-ZERO-2024-03
+            contract_id: TEST-ZERO
+            customer_id: TEST-CUSTOMER
+            tariff_id: TEST-TARIFF
+            reporting_month: '2024-03-01'
+            month_end_date: '2024-03-31'
+            days_in_month: 31
+            active_days: 31
+            is_active_at_month_end: true
+            has_consumption_record: true
+            is_consumption_known: true
+            consumption_kwh: 0
+            base_fee_eur_monthly: 8
+            unit_rate_eur_per_kwh: 0.40
+    expect:
+      rows:
+        - contract_month_key: TEST-ZERO-2024-03
+          active_contract_count: 1
+          base_fee_revenue_eur: 8
+          usage_revenue_eur: 0
+          total_revenue_eur: 8
+          is_revenue_complete: true

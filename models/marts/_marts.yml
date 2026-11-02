@@ -87,14 +87,24 @@ models:
       Certified monthly fact at one row per contract per calendar month in which
       the contract was active for at least one day. Revenue is complete only when
       consumption is known; missing consumption is never treated as zero.
+    semantic_model:
+      enabled: true
+      name: energy_contract_monthly
+    agg_time_dimension: reporting_month
     columns:
       - name: contract_month_key
         description: Deterministic fact primary key formed from contract ID and month.
+        entity:
+          type: primary
+          name: contract_month
         data_tests:
           - not_null
           - unique
       - name: contract_id
         description: Contract represented by the fact row.
+        entity:
+          type: foreign
+          name: contract
         data_tests:
           - not_null
           - relationships:
@@ -103,6 +113,9 @@ models:
                 field: contract_id
       - name: customer_id
         description: Customer that owns the contract.
+        entity:
+          type: foreign
+          name: customer
         data_tests:
           - not_null
           - relationships:
@@ -111,6 +124,9 @@ models:
                 field: customer_id
       - name: tariff_id
         description: Tariff assigned to the contract.
+        entity:
+          type: foreign
+          name: tariff
         data_tests:
           - not_null
           - relationships:
@@ -119,6 +135,9 @@ models:
                 field: tariff_id
       - name: reporting_month
         description: First calendar day of the reporting month.
+        granularity: month
+        dimension:
+          type: time
         data_tests:
           - not_null
       - name: month_end_date
@@ -164,15 +183,36 @@ models:
         data_tests:
           - not_null
       - name: base_fee_revenue_eur
-        description: Base fee prorated by active calendar days.
+        description: Base fee prorated by active calendar days and rounded to two decimal places.
         data_tests:
           - not_null
       - name: usage_revenue_eur
-        description: Consumption multiplied by unit rate; null when consumption is unknown.
+        description: Consumption multiplied by unit rate and rounded to two decimals; null when consumption is unknown.
       - name: total_revenue_eur
-        description: Base fee plus usage revenue; null when consumption is unknown.
+        description: Sum of rounded base-fee and usage revenue components; null when consumption is unknown.
       - name: is_revenue_complete
         description: True when total revenue is calculable from known consumption.
         data_tests:
           - not_null
+
+    metrics:
+      - name: active_contracts
+        label: Active Contracts
+        description: >-
+          Number of contracts active on the final calendar day of the reporting
+          month. The metric sums the 0/1 month-end activity flag and is additive
+          across contracts, but not across time.
+        type: simple
+        agg: sum
+        expr: active_contract_count
+
+      - name: recognized_revenue_eur
+        label: Recognized Revenue (EUR)
+        description: >-
+          Revenue calculated from complete contract-month records in EUR. The
+          metric sums total_revenue_eur; records with unknown consumption have a
+          null total and are excluded rather than treated as zero.
+        type: simple
+        agg: sum
+        expr: total_revenue_eur
 

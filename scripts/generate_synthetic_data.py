@@ -87,14 +87,10 @@ def generate() -> dict[str, int]:
     for customer_number in range(1, CUSTOMER_COUNT + 1):
         customer_id = f"CUS-{customer_number:04d}"
         contract_id = f"CON-{customer_number:04d}"
-        segment = rng.choices(
-            ["residential", "small_business"], weights=[0.78, 0.22], k=1
-        )[0]
+        segment = rng.choices(["residential", "small_business"], weights=[0.78, 0.22], k=1)[0]
         start_date = CONTRACT_START_MIN + timedelta(days=rng.randint(0, start_span))
         signup_date = start_date - timedelta(days=rng.randint(7, 120))
-        status = rng.choices(
-            ["active", "ended", "cancelled"], weights=[0.62, 0.24, 0.14], k=1
-        )[0]
+        status = rng.choices(["active", "ended", "cancelled"], weights=[0.62, 0.24, 0.14], k=1)[0]
 
         if status == "active":
             end_date = None
@@ -152,9 +148,7 @@ def generate() -> dict[str, int]:
 
     customer_rows.sort(key=lambda row: row["customer_id"])
     contract_rows.sort(key=lambda row: row["contract_id"])
-    consumption_rows.sort(
-        key=lambda row: (row["contract_id"], row["consumption_month"])
-    )
+    consumption_rows.sort(key=lambda row: (row["contract_id"], row["consumption_month"]))
 
     customer_keys = {row["customer_id"] for row in customer_rows}
     tariff_keys = {row["tariff_id"] for row in tariffs}
@@ -214,12 +208,8 @@ def generate() -> dict[str, int]:
         "tariffs": len(tariffs),
         "contracts": len(contract_rows),
         "monthly_consumption": len(consumption_rows),
-        "missing_consumption_values": sum(
-            row["consumption_kwh"] == "" for row in consumption_rows
-        ),
-        "measured_zero_values": sum(
-            row["consumption_kwh"] == "0.00" for row in consumption_rows
-        ),
+        "missing_consumption_values": sum(row["consumption_kwh"] == "" for row in consumption_rows),
+        "measured_zero_values": sum(row["consumption_kwh"] == "0.00" for row in consumption_rows),
     }
 
 

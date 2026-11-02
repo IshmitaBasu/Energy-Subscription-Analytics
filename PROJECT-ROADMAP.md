@@ -88,47 +88,47 @@ The [architecture document](./docs/architecture.md) is the design contract for t
 
 ### Stage 6 — Add data quality tests
 
-- [ ] Add `not_null` and `unique` tests to primary keys and other required fields.
-- [ ] Add relationship tests for fact-to-dimension keys and other required foreign keys.
-- [ ] Add accepted-value or range tests for relevant statuses, dates, and numeric measures.
-- [ ] Add a test or reconciliation query for the revenue formula and monthly aggregation.
-- [ ] Add a test that checks the declared fact grain (one row per contract per month).
-- [ ] Run the tests against both normal data and a small intentionally invalid example where practical, to verify that failures are meaningful.
-- [ ] Make test failures visible; do not make invalid records appear valid through undocumented defaults.
+- [x] Add `not_null` and `unique` tests to primary keys and other required fields.
+- [x] Add relationship tests for fact-to-dimension keys and other required foreign keys.
+- [x] Add accepted-value or range tests for relevant statuses, dates, and numeric measures.
+- [x] Add a test or reconciliation query for the revenue formula and monthly aggregation.
+- [x] Add a test that checks the declared fact grain (one row per contract per month).
+- [x] Run the tests against both normal data and a small intentionally invalid example where practical, to verify that failures are meaningful.
+- [x] Make test failures visible; do not make invalid records appear valid through undocumented defaults.
 
 **Stage complete when:** `dbt build` succeeds for valid data, and the tests would catch duplicate grain keys and broken relationships.
 
 ### Stage 7 — Document and define metrics
 
-- [ ] Generate and review dbt documentation; ensure model descriptions explain purpose, grain, and important business rules.
-- [ ] Define the active-contract metric with its date logic and aggregation behavior.
-- [ ] Define the revenue metric with its formula, currency, time grain, and any exclusions.
-- [ ] Configure MetricFlow metrics using the syntax supported by the selected dbt and MetricFlow versions.
-- [ ] Query or otherwise validate the metrics against hand-calculated examples from the synthetic data.
-- [ ] Document known limitations, especially any simplified tariff or cancellation assumptions.
+- [x] Generate and review dbt documentation; ensure model descriptions explain purpose, grain, and important business rules.
+- [x] Define the active-contract metric with its date logic and aggregation behavior.
+- [x] Define the revenue metric with its formula, currency, time grain, and any exclusions.
+- [x] Configure MetricFlow metrics using the syntax supported by the selected dbt and MetricFlow versions.
+- [x] Query or otherwise validate the metrics against hand-calculated examples from the synthetic data.
+- [x] Document known limitations, especially any simplified tariff or cancellation assumptions.
 
 **Stage complete when:** documentation is readable and the two metrics return values that match independently checked examples.
 
 ### Stage 8 — Create a small Metabase report
 
-- [ ] Connect Metabase to the appropriate BigQuery dataset using credentials with only the access needed for the project.
-- [ ] Expose the certified mart models rather than raw source tables as the main reporting surface.
-- [ ] Build a compact dashboard with an active-contract summary, monthly revenue trend, and one useful breakdown such as tariff or customer segment.
-- [ ] Check that dashboard totals match the dbt models and metric definitions.
-- [ ] Add clear titles, units, date filters, and a short note explaining the synthetic data.
-- [ ] Avoid including credentials or sensitive connection details in screenshots or repository files.
+- [x] Connect Metabase to the appropriate BigQuery dataset using credentials with only the access needed for the project.
+- [x] Expose the certified mart models rather than raw source tables as the only reporting surface in the prepared SQL.
+- [x] Build a compact dashboard with active-contract and revenue summaries, monthly trends, a completeness indicator, and tariff breakdowns.
+- [x] Check that all prepared dashboard-query totals match the dbt models and metric definitions.
+- [x] Add clear titles, units, separate month and trend-period filters, chart types, and a short note explaining the synthetic data.
+- [x] Avoid including credentials or sensitive connection details in repository files; keep the interactive application state in the local Docker volume.
 
 **Stage complete when:** the dashboard is understandable, uses modeled data, and its displayed values reconcile to the warehouse models.
 
 ### Stage 9 — Final validation and portfolio polish
 
-- [ ] Run the documented setup and build steps from a clean environment or a fresh checkout.
-- [ ] Run the full dbt build and tests, then generate the dbt documentation site.
-- [ ] Review the repository for credentials, personal data, unnecessary generated files, and accidental cloud exports.
-- [ ] Add a final README section with architecture, data grains, metric definitions, setup/build commands, dashboard preview, limitations, and cleanup instructions.
-- [ ] Capture a dashboard image or documentation screenshot only if it can be shared safely and clearly.
-- [ ] Update the CV wording only to describe what is actually implemented and verified; keep future work labeled as planned.
-- [ ] Stop or remove unused cloud resources and verify that no ongoing resources were left behind.
+- [x] Regenerate the deterministic inputs and run the documented full build without partial parsing.
+- [x] Run the full dbt build and tests, then generate the dbt documentation catalog.
+- [x] Review the repository for credentials, personal data, unnecessary generated files, and accidental cloud exports.
+- [x] Complete the README with architecture, data grains, metric definitions, setup/build commands, dashboard preview, limitations, cleanup guidance, and final validation evidence.
+- [x] Add a credential-safe dashboard image.
+- [x] Add CV wording that describes only implemented and verified work.
+- [x] Inventory the cloud footprint and retain only the intentional development datasets and read-only reporting identity.
 
 **Stage complete when:** another person can understand the project, reproduce the models and tests, and see an honest demonstration of the finished scope.
 

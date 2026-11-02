@@ -31,7 +31,7 @@ The project pins `dbt-core==1.12.6` and `dbt-bigquery==1.12.1` in `requirements.
 
 | Setting | Value | Status |
 |---|---|---|
-| Project ID | `tenji-446218` | Provided |
+| Project ID | `YOUR_GCP_PROJECT_ID` | User-provided and kept out of versioned configuration |
 | BigQuery location | `EU` | Provided |
 | Development dataset | `esa_dev` | Confirmed; location `EU` |
 | Synthetic source tables and rows | 4 tables; 3,160 total rows | Loaded and verified in Stage 3 |
@@ -59,7 +59,7 @@ The dataset now contains the four synthetic source tables loaded during Stage 3.
 
 Use the BigQuery Sandbox for the first version if it is available for your account. Google describes it as usable without a credit card or billing account, but it has limits: tables expire after 60 days and free quotas apply. Keep the synthetic dataset small and check the current [Sandbox limitations](https://cloud.google.com/bigquery/docs/sandbox#limitations) before relying on it.
 
-1. Open [BigQuery Studio](https://console.cloud.google.com/bigquery), sign in, and select the project with ID `tenji-446218`.
+1. Open [BigQuery Studio](https://console.cloud.google.com/bigquery), sign in, and select `YOUR_GCP_PROJECT_ID`.
 2. In BigQuery Studio, confirm or create a development dataset named `esa_dev` in the `EU` location. This project uses synthetic data, but the dataset location should still be chosen consistently.
 4. Install the [Google Cloud CLI for Windows](https://cloud.google.com/sdk/docs/install), then open a new PowerShell window and run:
 
@@ -90,7 +90,7 @@ The project ID and region are not credentials, but never paste credential files 
 - Added the initial dbt project configuration, dependency pin, `.gitignore`, and standard dbt directories.
 - Created `.venv` and installed dbt Core 1.12.6 with BigQuery adapter 1.12.1.
 - Initialized Git in this project folder and verified that local environment and credential/profile paths are ignored.
-- Configured `%USERPROFILE%\.dbt\profiles.yml` locally for `tenji-446218.esa_dev` in `EU`; the profile is outside Git.
+- Configured `%USERPROFILE%\.dbt\profiles.yml` locally for `YOUR_GCP_PROJECT_ID.esa_dev` in `EU`; the profile is outside Git.
 - Verified the dataset exists in `EU`. Stage 3 subsequently loaded `customers`, `tariffs`, `contracts`, and `monthly_consumption`.
 - `dbt debug` and `dbt parse` both pass.
 - The Google Cloud CLI binary exists but its folder is not on PATH, and no standard `gcloud` account is active. dbt works through Application Default Credentials; direct gcloud/bq CLI use may require `gcloud auth login`.

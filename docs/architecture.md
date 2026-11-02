@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document is the design contract for the first portfolio release. It defines the system boundaries, data flow, model layers, grains, metric ownership, and quality controls before transformation SQL is implemented.
+This document is the implemented design contract for the first portfolio release. It defines the system boundaries, data flow, model layers, grains, metric ownership, and quality controls reflected in the repository.
 
 The architecture is intentionally small. It demonstrates sound analytics-engineering practices without imitating a production energy platform.
 
@@ -12,16 +12,15 @@ Implemented today:
 
 - Deterministic synthetic-data generation in Python.
 - Four generated CSV files for customers, tariffs, contracts, and monthly consumption.
-- Four corresponding dbt seeds loaded into `tenji-446218.esa_dev` in the BigQuery `EU` location.
+- Four corresponding dbt seeds loaded into `YOUR_GCP_PROJECT_ID.esa_dev` in the BigQuery `EU` location.
 - A working local dbt Core connection using OAuth.
 - Four documented dbt sources and four tested staging views in `esa_dev_staging`.
 - A complete contract-month scaffold in `esa_dev_staging`.
+- A daily MetricFlow time-spine support view in `esa_dev_staging`.
 - Three certified dimensions and `fact_contract_monthly` in `esa_dev_marts`.
-
-Planned next:
-
-- Focused business-rule data tests and two MetricFlow metrics.
-- A Metabase dashboard that queries only final mart models.
+- Structural, business-rule, reconciliation, and mocked unit tests for the complete lineage.
+- Generated dbt documentation plus a locally validated semantic model with two metrics.
+- A pinned localhost-only Metabase runtime, seven validated dashboard-query templates, and a completed dashboard using only final mart models.
 
 ## System context
 
@@ -42,11 +41,12 @@ flowchart LR
     S -->|dbt intermediate and mart models| M
     D -.->|executes and tests| S
     D -.->|executes and tests| M
+    S -.->|daily time spine| F
     M --> F
     M --> B
 ```
 
-MetricFlow and Metabase are separate consumers of the same certified mart. Metabase will query physical BigQuery mart tables rather than depending on a hosted dbt Semantic Layer integration.
+MetricFlow and Metabase are separate consumers of the certified mart. MetricFlow also uses the non-reporting daily time spine required by its local engine. Metabase queries physical BigQuery mart tables rather than depending on a hosted dbt Semantic Layer integration.
 
 ## Data flow and dbt lineage
 
@@ -56,6 +56,7 @@ flowchart TD
     RT[(tariffs)] --> ST[view_tariffs]
     RK[(contracts)] --> SK[view_contracts]
     RU[(monthly_consumption)] --> SU[view_monthly_consumption]
+    TS[view_time_spine_daily] --> MF[MetricFlow metrics]
 
     SC --> DC[dim_customer]
     ST --> DT[dim_tariff]
@@ -66,7 +67,7 @@ flowchart TD
     ST --> CM
     CM --> FM[fact_contract_monthly]
 
-    FM --> MF[MetricFlow metrics]
+    FM --> MF
     FM --> MB[Metabase]
     DC --> MB
     DT --> MB
@@ -81,7 +82,7 @@ All downstream references will use dbt `source()` or `ref()` relationships. No m
 |---|---|---|---|
 | Raw | Preserve reproducible synthetic inputs with explicit types | Seed tables | `esa_dev` |
 | Staging | Rename, cast, normalize, and expose source fields without business calculations | Views | `esa_dev_staging` |
-| Intermediate | Create the complete contract-month scaffold and reusable business-rule calculations | Views | `esa_dev_staging` |
+| Intermediate | Create the contract-month scaffold, reusable calculations, and MetricFlow's daily time spine | Views | `esa_dev_staging` |
 | Marts | Publish documented dimensions and the analysis-ready monthly fact | Tables | `esa_dev_marts` |
 | Semantic | Define governed metric names and aggregations on the certified fact | MetricFlow YAML | Not applicable |
 | Reporting | Present a small set of reconciled business views | Metabase questions/dashboard | Not applicable |
@@ -127,9 +128,9 @@ For every contract-month in the January 2024 through December 2025 reporting win
 1. `reporting_month` is the first calendar day of the month.
 2. `active_days` is the inclusive overlap between the contract service period and the calendar month.
 3. `is_active_at_month_end` is true when the start date is on or before month end and the end date is absent or on or after month end.
-4. `base_fee_revenue_eur` is the monthly base fee multiplied by `active_days / days_in_month`.
-5. `usage_revenue_eur` is consumption in kWh multiplied by the fixed tariff unit rate.
-6. `total_revenue_eur` is base-fee revenue plus usage revenue when consumption is known; otherwise it is null.
+4. `base_fee_revenue_eur` is the monthly base fee multiplied by `active_days / days_in_month`, rounded to two decimal places.
+5. `usage_revenue_eur` is consumption in kWh multiplied by the fixed tariff unit rate, rounded to two decimal places.
+6. `total_revenue_eur` is the sum of the rounded base-fee and usage components when consumption is known; otherwise it is null.
 7. `is_revenue_complete` is true only when consumption is known, including a measured zero.
 
 Contract start and end dates are inclusive. The first version uses one fixed rate per tariff and EUR only.
@@ -167,6 +168,8 @@ Quality controls are applied at the earliest useful layer:
 
 A valid build must fail on duplicate contract-month rows, orphaned keys, or revenue that contradicts the documented formula.
 
+The implemented suite contains 123 data tests and four unit tests. Unit fixtures cover a full month, a partial month, missing consumption, and measured-zero consumption. The two additional tests validate the daily time-spine grain. A complete `dbt build` runs the unit tests before materializing the fact and then validates the resulting warehouse data.
+
 ## Certified reporting interface
 
 The three dimensions and `fact_contract_monthly` are the public reporting interface. They are:
@@ -176,7 +179,7 @@ The three dimensions and `fact_contract_monthly` are the public reporting interf
 - Tested for primary-key uniqueness, required fields, and relationships.
 - Built in `esa_dev_marts` so Metabase can be restricted to final models.
 
-Enforced dbt model contracts remain optional portfolio hardening for the documentation stage.
+Enforced dbt model contracts remain optional future portfolio hardening.
 
 Staging and intermediate models are implementation details and are not intended as reporting sources.
 
@@ -185,7 +188,7 @@ Staging and intermediate models are implementation details and are not intended 
 - Only synthetic data is permitted.
 - OAuth credentials, service-account JSON, local profiles, and tokens must remain outside Git.
 - dbt uses local user OAuth for development.
-- Metabase will use a dedicated read-only service account scoped to the required BigQuery datasets.
+- Metabase uses a dedicated read-only service account scoped to the required BigQuery datasets.
 - Data volumes remain small, and no incremental processing, orchestration service, or always-on compute is required.
 
 ## First-version non-goals
@@ -198,17 +201,18 @@ Staging and intermediate models are implementation details and are not intended 
 - Incremental models, orchestration, or production deployment.
 - Forecasting, anomaly detection, or machine learning.
 - A production-grade billing calculation.
+- A hosted dbt Semantic Layer deployment; MetricFlow is validated locally.
 
 These may be documented as future extensions but must not delay the first complete portfolio release.
 
 ## Architecture acceptance checks
 
-Before implementation proceeds:
+The implemented release satisfies these checks:
 
-- Every planned model has one explicit grain.
+- Every model has one explicit grain.
 - Missing and zero consumption have different meanings.
 - The complete contract-month scaffold is the source of both headline metrics.
 - MetricFlow and Metabase consume certified marts rather than raw or staging data.
-- Planned tests cover keys, relationships, grain, and metric-critical business rules.
+- Tests cover keys, relationships, grain, and metric-critical business rules.
 - The design remains reproducible with synthetic data and a small BigQuery footprint.
 

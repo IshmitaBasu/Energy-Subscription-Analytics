@@ -25,6 +25,7 @@ These decisions are the source of truth for synthetic data, model logic, tests, 
 | Active contract | Count contracts active on the last calendar day of each reporting month. A contract is active on a date when its start date is on or before that date and its end/cancellation date is either absent or on/after that date. Start and end dates are inclusive. |
 | Revenue | Monthly base fee plus monthly consumption in kWh multiplied by the tariff unit rate. |
 | Partial-month base fee | Prorate by active calendar days divided by the number of days in the month. |
+| Monetary rounding | Round the prorated base-fee and usage-revenue components to two decimal places, then sum the rounded components for total revenue. |
 | Missing monthly consumption | Keep missing distinct from zero. Keep the known base-fee component, but mark total monthly revenue incomplete/null when consumption is missing; do not silently substitute zero. |
 | Tariff rate changes | One fixed unit rate per tariff in the first version; no effective-dated rate changes. |
 | Scope | Germany (`DE`), one currency (EUR), monthly consumption, and synthetic data only. |

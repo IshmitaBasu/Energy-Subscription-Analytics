@@ -6,7 +6,7 @@
 
 Create small, deterministic, clearly documented source tables that exercise the business rules without using real personal or customer data.
 
-## Planned source entities
+## Source entities
 
 - Customers
 - Tariffs and rates
@@ -66,5 +66,5 @@ The CSVs are tracked as small, reproducible synthetic inputs and are configured 
 
 - Generated and checked in deterministic synthetic CSVs under `data/generated/`.
 - Verified repeatability, foreign keys, unique contract-month keys, and missing versus measured-zero examples.
-- Loaded all four files into `tenji-446218.esa_dev` with `dbt seed`.
+- Loaded all four files into `YOUR_GCP_PROJECT_ID.esa_dev` with `dbt seed`.
 - Queried BigQuery and reconciled the table counts to the generated files: 180 customers, 4 tariffs, 180 contracts, and 2,796 monthly consumption rows.

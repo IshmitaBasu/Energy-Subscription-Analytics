@@ -1,6 +1,21 @@
 version: 2
 
 models:
+  - name: view_time_spine_daily
+    description: >-
+      MetricFlow support view at one row per calendar day from 2020-01-01
+      through 2030-12-31. It covers the synthetic reporting period with a
+      buffer and is not a certified reporting model.
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        description: Calendar date and unique grain of the daily time spine.
+        granularity: day
+        data_tests:
+          - not_null
+          - unique
+
   - name: view_contract_months
     description: >-
       Complete monthly scaffold at one row per contract per calendar month in

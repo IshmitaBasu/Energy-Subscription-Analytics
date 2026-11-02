@@ -1,0 +1,20 @@
+version: 2
+
+data_tests:
+  - name: assert_non_negative_numeric_values
+    description: Consumption, tariff amounts, and revenue components cannot be negative.
+  - name: assert_fact_calendar_consistency
+    description: Fact month-start, month-end, and day-count fields must describe the same calendar month.
+  - name: assert_fact_activity_consistency
+    description: Month-end activity flags and additive counts must agree with inclusive contract dates.
+  - name: assert_fact_revenue_formulas
+    description: Base-fee, usage, and total revenue must match their documented formulas.
+  - name: assert_fact_consumption_completeness
+    description: Missing, null, and measured-zero consumption must drive revenue completeness consistently.
+  - name: assert_fact_reconciles_to_contract_month_view
+    description: The fact and complete contract-month view must contain exactly the same natural keys.
+  - name: assert_dimensions_reconcile_to_views
+    description: Every dimension must contain exactly the same entity keys as its source-aligned view.
+  - name: assert_fact_active_contracts_reconcile
+    description: Monthly active-contract totals must reconcile directly to inclusive contract dates.
+

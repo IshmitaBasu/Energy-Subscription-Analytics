@@ -23,13 +23,18 @@ calculated as (
         consumption_kwh,
         base_fee_eur_monthly,
         unit_rate_eur_per_kwh,
-        base_fee_eur_monthly
-            * safe_divide(
-                cast(active_days as numeric),
-                cast(days_in_month as numeric)
-            ) as base_fee_revenue_eur,
-        consumption_kwh * unit_rate_eur_per_kwh
-            as usage_revenue_eur
+        round(
+            base_fee_eur_monthly
+                * safe_divide(
+                    cast(active_days as numeric),
+                    cast(days_in_month as numeric)
+                ),
+            2
+        ) as base_fee_revenue_eur,
+        round(
+            consumption_kwh * unit_rate_eur_per_kwh,
+            2
+        ) as usage_revenue_eur
     from contract_months
 
 ),
